@@ -1,20 +1,30 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import HomeStack from './src/components/homeStack/HomeStack';
+import AuthStack from './src/components/authStack/AuthStack';
+import { StateProvider } from './StateContext';
+import { useState, useEffect } from 'react';
+import { auth } from './src/database/config';
+import { onAuthStateChanged } from "firebase/auth";
+
 
 export default function App() {
+  const [userUid, setUserUid] = useState('')
+  useEffect(() => {
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+
+        const uid = user.uid;
+        setUserUid(uid)
+
+      } else {
+        setUserUid('')
+      }
+    });
+
+  }, [])
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <StateProvider>
+      {userUid ? <HomeStack /> : <AuthStack />}
+    </StateProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
